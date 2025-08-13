@@ -1,1 +1,2 @@
 https://maven.aliyun.com/repository/public
+https://repo.papermc.io/repository/maven-public
