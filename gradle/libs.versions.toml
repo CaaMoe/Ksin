@@ -1,0 +1,11 @@
+[versions]
+kotlin = "2.2.0"
+kotlinx-serialization = "1.5.1"
+shadow = "8.3.8"
+
+velocity-api = "3.4.0-SNAPSHOT"
+
+[libraries]
+kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
+velocity-api = { group = "com.velocitypowered", name = "velocity-api", version.ref = "velocity-api" }
+kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }
