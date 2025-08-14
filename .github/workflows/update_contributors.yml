@@ -27,7 +27,8 @@ jobs:
               path: '/repos/"$GITHUB_REPOSITORY"/contributors',
               port: 443,
               headers: {
-                'User-Agent': 'Bot'
+                'User-Agent': 'Bot',
+                'Authorization': 'token ${{ secrets.GITHUB_TOKEN }}'
               }
             };
           
