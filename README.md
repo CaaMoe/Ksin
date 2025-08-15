@@ -15,10 +15,10 @@ Ksin 是一个专为 Minecraft Velocity 代理服务器设计的插件, 功能�
 
 ## 安装
 
-1.  确保你的服务器是 Velocity 类型代理端
-2.  从 [Releases](https://github.com/CaaMoe/Ksin/releases) 页面下载最新版本的 Ksin.jar
-3.  将下载的 JAR 文件放入 Velocity 服务器的 `plugins` 文件夹中
-4.  重启 Velocity 服务器
+1. 确保你的服务器是 Velocity 类型代理端
+2. 从 [Releases](https://github.com/CaaMoe/Ksin/releases) 页面下载最新版本的 Ksin.jar
+3. 将下载的 JAR 文件放入 Velocity 服务器的 `plugins` 文件夹中
+4. 重启 Velocity 服务器
 
 ## 配置
 
@@ -40,8 +40,8 @@ Ksin 是一个专为 Minecraft Velocity 代理服务器设计的插件, 功能�
 
 欢迎通过以下方式为 Ksin 插件贡献力量：
 
-1.  提交 bug 报告或功能建议到 [Issues](https://github.com/CaaMoe/Ksin/issues)
-2.  提交代码改进通过 [Pull Requests](https://github.com/CaaMoe/Ksin/pulls)
+1. 提交 bug 报告或功能建议到 [Issues](https://github.com/CaaMoe/Ksin/issues)
+2. 提交代码改进通过 [Pull Requests](https://github.com/CaaMoe/Ksin/pulls)
 
 ***
 
