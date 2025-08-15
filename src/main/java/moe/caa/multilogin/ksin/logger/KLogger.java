@@ -6,7 +6,7 @@ import org.slf4j.Logger;
 
 @ApiStatus.Internal
 public class KLogger {
-    private final Logger handle;
+    public final Logger handle;
     private boolean debugAsInfo = false;
 
     public KLogger(@NotNull Logger handle) {

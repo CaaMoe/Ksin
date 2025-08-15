@@ -1,0 +1,4 @@
+kotlin moe.caa.multilogin.ksin.libraries.kotlin
+kotlinx moe.caa.multilogin.ksin.libraries.kotlinx
+
+org.bstats moe.caa.multilogin.ksin.libraries.org.bstats

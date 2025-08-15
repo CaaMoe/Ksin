@@ -32,6 +32,10 @@ dependencies {
     compileOnly(libs.velocity.api)
 
     compileOnlyAndExtra(libs.kotlin.stdlib)
+    compileOnlyAndExtra(libs.kotlin.reflect)
+
+    compileOnlyAndExtra(libs.bstats.velocity)
+    compileOnlyAndExtra(libs.bstats.base)
 }
 
 fun DependencyHandler.compileOnlyAndExtra(dependencyNotation: Any) {

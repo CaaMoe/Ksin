@@ -2,6 +2,7 @@
 kotlin = "2.2.0"
 kotlinx-serialization = "1.5.1"
 shadow = "8.3.8"
+bstats = "3.0.2"
 
 velocity-api = "3.4.0-SNAPSHOT"
 
@@ -9,3 +10,7 @@ velocity-api = "3.4.0-SNAPSHOT"
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 velocity-api = { group = "com.velocitypowered", name = "velocity-api", version.ref = "velocity-api" }
 kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }
+kotlin-reflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", version.ref = "kotlin" }
+
+bstats-velocity = { group = "org.bstats", name = "bstats-velocity", version.ref = "bstats" }
+bstats-base = { group = "org.bstats", name = "bstats-base", version.ref = "bstats" }
