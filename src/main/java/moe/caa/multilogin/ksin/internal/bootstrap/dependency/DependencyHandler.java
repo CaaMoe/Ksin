@@ -1,12 +1,10 @@
-package moe.caa.multilogin.ksin.dependency;
+package moe.caa.multilogin.ksin.internal.bootstrap.dependency;
 
-import moe.caa.multilogin.ksin.logger.KLogger;
-import org.jetbrains.annotations.ApiStatus;
+import moe.caa.multilogin.ksin.internal.logger.KLogger;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
 
-@ApiStatus.Internal
 public class DependencyHandler {
     final @NotNull Path dependenciesDirectory;
     final @NotNull KLogger logger;

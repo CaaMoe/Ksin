@@ -1,4 +1,4 @@
-package moe.caa.multilogin.ksin.bootstrap;
+package moe.caa.multilogin.ksin.internal.bootstrap;
 
 import com.google.inject.Inject;
 import com.velocitypowered.api.event.Subscribe;
@@ -7,10 +7,10 @@ import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
-import moe.caa.multilogin.ksin.dependency.Dependency;
-import moe.caa.multilogin.ksin.dependency.DependencyHandler;
-import moe.caa.multilogin.ksin.logger.KLogger;
-import org.jetbrains.annotations.ApiStatus;
+import moe.caa.multilogin.ksin.internal.bootstrap.dependency.Dependency;
+import moe.caa.multilogin.ksin.internal.bootstrap.dependency.DependencyHandler;
+import moe.caa.multilogin.ksin.internal.logger.KLogger;
+import moe.caa.multilogin.ksin.internal.main.Ksin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -26,8 +26,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-@Plugin(id = moe.caa.multilogin.ksin.bootstrap.KsinBootstrap.PLUGIN_ID)
-@ApiStatus.Internal
+@Plugin(id = KsinBootstrap.PLUGIN_ID)
 public class KsinBootstrap {
     public static final String PLUGIN_ID = "ksin";
 
@@ -35,7 +34,6 @@ public class KsinBootstrap {
     public final @NotNull KLogger logger;
     public final @NotNull Path dataDirectory;
     public final @NotNull DependencyHandler dependencyHandler;
-    private @Nullable IKsin ksin = null;
 
 
     @Inject
@@ -61,16 +59,14 @@ public class KsinBootstrap {
 
     @Subscribe
     public void onDisable(@NotNull ProxyShutdownEvent event) {
-        if (ksin != null) {
-            try {
-                ksin.disable();
-                dependencyHandler.close();
-                ksin = null;
-                logger.info("Disabled ksin.");
-            } catch (Throwable e) {
-                logger.error("Failed to disable Ksin", e);
-            }
+        try {
+            Ksin.INSTANCE.disable();
+            dependencyHandler.close();
+            logger.info("Disabled ksin.");
+        } catch (Throwable e) {
+            logger.error("Failed to disable Ksin", e);
         }
+
     }
 
     private void initialize() throws Throwable {
@@ -78,9 +74,7 @@ public class KsinBootstrap {
         checkLoggerDebugAsInfoFlag();
         initDependency();
 
-        ksin = (IKsin) Class.forName("moe.caa.multilogin.ksin.main.Ksin").getField("INSTANCE").get(null);
-        ksin.enable(this);
-
+        Ksin.INSTANCE.enable(this);
         logger.info("Enabled, using Ksin v" + server.getPluginManager().ensurePluginContainer(this).getDescription().getVersion().orElse("unknown") + ".");
     }
 
@@ -101,7 +95,6 @@ public class KsinBootstrap {
         // outside repository
         Path outsideRepositories = dataDirectory.resolve("repositories.txt");
         if (Files.exists(outsideRepositories)) {
-            logger.warn("Found outside repositories.txt, it will be used to add additional repositories.");
             List<String> outsideRepositoriesList = Files.readAllLines(outsideRepositories).stream()
                     .map(String::trim)
                     .filter(e -> !e.isEmpty())
@@ -134,7 +127,6 @@ public class KsinBootstrap {
         // outside repository
         Path outsideRelocations = dataDirectory.resolve("relocations.txt");
         if (Files.exists(outsideRelocations)) {
-            logger.warn("Found outside relocations.txt, it will be used to add additional relocations.");
             List<String[]> outsideRelocationsList = Files.readAllLines(outsideRelocations).stream()
                     .map(String::trim)
                     .filter(e -> !e.isEmpty())
@@ -165,7 +157,6 @@ public class KsinBootstrap {
         // outside dependency
         Path outsideDependencies = dataDirectory.resolve("dependencies.txt");
         if (Files.exists(outsideDependencies)) {
-            logger.warn("Found outside dependencies.txt, it will be used to add additional dependencies.");
             List<String> outsideDependenciesList = Files.readAllLines(outsideDependencies).stream()
                     .map(String::trim)
                     .filter(e -> !e.isEmpty())
@@ -203,11 +194,5 @@ public class KsinBootstrap {
         try (InputStream inputStream = connection.getInputStream()) {
             return inputStream.readAllBytes();
         }
-    }
-
-    public interface IKsin {
-        void enable(@NotNull KsinBootstrap bootstrap);
-
-        void disable();
     }
 }

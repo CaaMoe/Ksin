@@ -11,9 +11,6 @@ buildscript {
 plugins {
     id("java")
     id("com.gradleup.shadow") version libs.versions.shadow
-
-    kotlin("jvm") version libs.versions.kotlin
-    kotlin("plugin.serialization") version libs.versions.kotlin
 }
 
 group = "moe.caa"
@@ -36,6 +33,7 @@ dependencies {
 
     compileOnlyAndExtra(libs.bstats.velocity)
     compileOnlyAndExtra(libs.bstats.base)
+    compileOnlyAndExtra(libs.hikaricp)
 }
 
 fun DependencyHandler.compileOnlyAndExtra(dependencyNotation: Any) {
@@ -91,7 +89,7 @@ tasks.processResources {
                         }
                     })
                     put("description", JsonPrimitive("Bad signature skin repairer."))
-                    put("main", JsonPrimitive("moe.caa.multilogin.ksin.bootstrap.KsinBootstrap"))
+                    put("main", JsonPrimitive("moe.caa.multilogin.ksin.internal.bootstrap.KsinBootstrap"))
                 }.toString()
             )
         }

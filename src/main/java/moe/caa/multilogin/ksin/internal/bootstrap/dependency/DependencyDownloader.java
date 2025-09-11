@@ -1,6 +1,5 @@
-package moe.caa.multilogin.ksin.dependency;
+package moe.caa.multilogin.ksin.internal.bootstrap.dependency;
 
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -15,7 +14,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-@ApiStatus.Internal
 class DependencyDownloader {
     final @NotNull DependencyHandler dependencyHandler;
     final @NotNull Set<String> repositories = new LinkedHashSet<>();

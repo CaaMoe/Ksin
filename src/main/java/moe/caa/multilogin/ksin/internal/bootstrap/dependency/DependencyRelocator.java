@@ -1,6 +1,5 @@
-package moe.caa.multilogin.ksin.dependency;
+package moe.caa.multilogin.ksin.internal.bootstrap.dependency;
 
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-@ApiStatus.Internal
 class DependencyRelocator {
     private final @NotNull DependencyHandler dependencyHandler;
     private final @NotNull Path relocatedDependenciesDirectory;

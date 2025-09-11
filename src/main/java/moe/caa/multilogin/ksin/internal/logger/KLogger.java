@@ -1,4 +1,4 @@
-package moe.caa.multilogin.ksin.logger;
+package moe.caa.multilogin.ksin.internal.logger;
 
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;

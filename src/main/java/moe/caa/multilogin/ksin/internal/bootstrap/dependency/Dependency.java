@@ -1,9 +1,7 @@
-package moe.caa.multilogin.ksin.dependency;
+package moe.caa.multilogin.ksin.internal.bootstrap.dependency;
 
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
-@ApiStatus.Internal
 public record Dependency(
         @NotNull String groupId,
         @NotNull String artifactId,
