@@ -16,12 +16,20 @@ import java.util.stream.Collectors;
 public abstract class Configuration {
     private final @NotNull List<@NotNull ParseableConfigurationValue<?>> configurationValues = new ArrayList<>();
 
+    protected @NotNull ConfigurationValue<Boolean> bool(@NotNull NodePath path) {
+        return raw(path, ConfigurationNode::getBoolean);
+    }
+
+    protected @NotNull ConfigurationValue<Boolean> boolOpt(@NotNull NodePath path, @NotNull Boolean defaultValue) {
+        return rawOpt(path, ConfigurationNode::getBoolean, defaultValue);
+    }
+
     protected @NotNull ConfigurationValue<String> string(@NotNull NodePath path) {
         return raw(path, ConfigurationNode::getString);
     }
 
     protected @NotNull ConfigurationValue<String> stringOpt(@NotNull NodePath path, @NotNull String defaultValue) {
-        return rawOpt(path, ConfigurationNode::getString, () -> defaultValue);
+        return rawOpt(path, ConfigurationNode::getString, defaultValue);
     }
 
     protected @NotNull ConfigurationValue<Configuration> sub(@NotNull NodePath path, @NotNull Configuration configurationInstance) {
@@ -38,6 +46,10 @@ public abstract class Configuration {
 
     protected <T> @NotNull ConfigurationValue<T> rawOpt(@NotNull NodePath path, Function<@NotNull ConfigurationNode, @Nullable T> mapValue, Supplier<@NotNull T> defaultProvider) {
         return new ConfigurationSpecifiedValue<>(path, mapValue, defaultProvider);
+    }
+
+    protected <T> @NotNull ConfigurationValue<T> rawOpt(@NotNull NodePath path, Function<@NotNull ConfigurationNode, @Nullable T> mapValue, @NotNull T defaultValue) {
+        return rawOpt(path, mapValue, (Supplier<T>) () -> defaultValue);
     }
 
     public void loadFrom(@NotNull ConfigurationNode node) {

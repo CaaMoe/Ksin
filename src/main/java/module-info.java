@@ -4,6 +4,7 @@ module Ksin.main {
     requires org.slf4j;
     requires org.spongepowered.configurate;
     requires com.google.guice;
+    requires com.zaxxer.hikari;
 
     exports moe.caa.multilogin.ksin.api;
 }
