@@ -6,6 +6,7 @@
 [![GitHub license](https://img.shields.io/github/license/CaaMoe/Ksin?style=flat-square)](https://github.com/CaaMoe/Ksin/blob/master/LICENSE)
 [![QQ Group](https://img.shields.io/badge/QQ%20group-832210691-yellow?style=flat-square)](https://jq.qq.com/?_wv=1027&k=WrOTGIC7)
 [![Join our Discord](https://img.shields.io/discord/1225725211727499347.svg?logo=discord&label=)](https://discord.gg/9vh4kZRFCj)
+[![bStats](https://img.shields.io/bstats/servers/26924?color=brightgreen&label=bStats&logo=bs&style=flat-square)](https://bstats.org/plugin/velocity/ksin/26924)
 
 </div>
 
