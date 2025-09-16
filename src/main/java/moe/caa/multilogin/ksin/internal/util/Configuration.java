@@ -16,12 +16,54 @@ import java.util.stream.Collectors;
 public abstract class Configuration {
     private final @NotNull List<@NotNull ParseableConfigurationValue<?>> configurationValues = new ArrayList<>();
 
+    protected <E extends Enum<E>> @NotNull ConfigurationValue<E> enumConstant(@NotNull NodePath path, Class<E> enumClass) {
+        return raw(path, node -> {
+            String value = node.getString();
+            if (value == null) {
+                return null;
+            }
+
+            for (E constant : enumClass.getEnumConstants()) {
+                if (constant.name().equalsIgnoreCase(value)) {
+                    return constant;
+                }
+            }
+            throw new IllegalArgumentException("Invalid enum value '" + value + "' for enum " + enumClass.getName() + " at path " + Arrays.stream(path.array()).map(Object::toString).collect(Collectors.joining(".")));
+
+        });
+    }
+
+    protected <E extends Enum<E>> @NotNull ConfigurationValue<E> enumConstantOpt(@NotNull NodePath path, Class<E> enumClass, @NotNull E defaultValue) {
+        return rawOpt(path, node -> {
+            String value = node.getString();
+            if (value == null) {
+                return null;
+            }
+
+            for (E constant : enumClass.getEnumConstants()) {
+                if (constant.name().equalsIgnoreCase(value)) {
+                    return constant;
+                }
+            }
+            throw new IllegalArgumentException("Invalid enum value '" + value + "' for enum " + enumClass.getName() + " at path " + Arrays.stream(path.array()).map(Object::toString).collect(Collectors.joining(".")));
+
+        }, defaultValue);
+    }
+
     protected @NotNull ConfigurationValue<Boolean> bool(@NotNull NodePath path) {
         return raw(path, ConfigurationNode::getBoolean);
     }
 
-    protected @NotNull ConfigurationValue<Boolean> boolOpt(@NotNull NodePath path, @NotNull Boolean defaultValue) {
+    protected @NotNull ConfigurationValue<Boolean> boolOpt(@NotNull NodePath path, boolean defaultValue) {
         return rawOpt(path, ConfigurationNode::getBoolean, defaultValue);
+    }
+
+    protected @NotNull ConfigurationValue<Integer> integer(@NotNull NodePath path) {
+        return raw(path, ConfigurationNode::getInt);
+    }
+
+    protected @NotNull ConfigurationValue<Integer> integerOpt(@NotNull NodePath path, int defaultValue) {
+        return rawOpt(path, ConfigurationNode::getInt, defaultValue);
     }
 
     protected @NotNull ConfigurationValue<String> string(@NotNull NodePath path) {
