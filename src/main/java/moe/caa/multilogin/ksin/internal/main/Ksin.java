@@ -28,7 +28,8 @@ public class Ksin {
         try {
             Class<?> metricsFactoryClass = Class.forName("org.bstats.velocity.Metrics$Factory");
 
-            Constructor<?> metricsFactoryConstructor = metricsFactoryClass.getConstructors()[0];
+            Constructor<?> metricsFactoryConstructor = metricsFactoryClass.getDeclaredConstructors()[0];
+            metricsFactoryConstructor.setAccessible(true);
             Object metricsFactory = metricsFactoryConstructor.newInstance(bootstrap.server, bootstrap.logger.handle, bootstrap.dataDirectory);
 
             Method makeMethod = metricsFactoryClass.getMethod("make", Object.class, int.class);
