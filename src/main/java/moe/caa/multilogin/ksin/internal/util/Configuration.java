@@ -74,7 +74,7 @@ public abstract class Configuration {
         return rawOpt(path, ConfigurationNode::getString, defaultValue);
     }
 
-    protected @NotNull ConfigurationValue<Configuration> sub(@NotNull NodePath path, @NotNull Configuration configurationInstance) {
+    protected <T extends Configuration> @NotNull ConfigurationValue<T> sub(@NotNull NodePath path, @NotNull T configurationInstance) {
         return new ConfigurationSubConfiguration<>(path, configurationInstance);
     }
 
