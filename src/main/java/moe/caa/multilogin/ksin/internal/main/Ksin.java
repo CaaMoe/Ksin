@@ -1,16 +1,22 @@
 package moe.caa.multilogin.ksin.internal.main;
 
 import moe.caa.multilogin.ksin.internal.bootstrap.KsinBootstrap;
+import moe.caa.multilogin.ksin.internal.configuration.MainConfig;
 import moe.caa.multilogin.ksin.internal.logger.KLogger;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 public class Ksin {
     public static final @NotNull Ksin INSTANCE = new Ksin();
+    public final MainConfig config = new MainConfig();
+    public final Executor asyncExecutor = Executors.newVirtualThreadPerTaskExecutor();
     public KLogger logger;
     public KsinBootstrap bootstrap;
+
 
     public void enable(@NotNull KsinBootstrap bootstrap) {
         this.bootstrap = bootstrap;
