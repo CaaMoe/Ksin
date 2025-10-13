@@ -14,7 +14,7 @@ plugins {
 }
 
 group = "moe.caa"
-version = "0.10.0+${getGitCommitID().substring(0, 8)}"
+version = "1.0.0+${getGitCommitID().substring(0, 8)}"
 
 configurations.register("extra")
 
