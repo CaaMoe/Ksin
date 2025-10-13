@@ -1,6 +1,8 @@
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
+import java.text.SimpleDateFormat
+import java.util.*
 
 buildscript {
     dependencies {
@@ -51,7 +53,6 @@ fun DependencyHandler.compileOnlyAndExtra(dependencyNotation: Any) {
     add("extra", dependencyNotation)
 }
 
-tasks.jar { enabled = false }
 tasks.build { finalizedBy(tasks.shadowJar) }
 tasks.shadowJar {
     configurations = emptyList()
@@ -68,7 +69,18 @@ tasks.shadowJar {
         }
 
     archiveFileName.set("Ksin.jar")
+    manifest {
+        attributes["Built-By"] = System.getProperty("user.name")
+        attributes["Build-Jdk"] = System.getProperty("java.version")
+        attributes["Build-OS"] =
+            "${System.getProperty("os.name")} ${System.getProperty("os.arch")} ${System.getProperty("os.version")}"
+        attributes["Build-Timestamp"] = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(Date())
+        attributes["Build-Revision"] = getGitCommitID()
+        attributes["Created-By"] = "Gradle ${gradle.gradleVersion}"
+    }
 }
+
+tasks.jar { enabled = false }
 
 tasks.processResources {
     from("${project.rootDir}/config/relocations.txt") { into("") }
