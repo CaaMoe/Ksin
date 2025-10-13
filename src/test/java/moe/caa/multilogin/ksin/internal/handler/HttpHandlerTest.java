@@ -1,24 +1,18 @@
 package moe.caa.multilogin.ksin.internal.handler;
 
-import moe.caa.multilogin.ksin.internal.logger.KLogger;
 import moe.caa.multilogin.ksin.internal.main.Ksin;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ExecutionException;
 
 public class HttpHandlerTest {
     private static final HttpHandler httpHandler = new HttpHandler();
 
-
     @BeforeEach
     public void setUp() {
-        Ksin.INSTANCE.logger = new KLogger(LoggerFactory.getLogger(HttpHandlerTest.class));
-        Ksin.INSTANCE.logger.setDebugAsInfo(true);
-
-
+        Ksin.INSTANCE.testInit();
         httpHandler.testInit();
     }
 

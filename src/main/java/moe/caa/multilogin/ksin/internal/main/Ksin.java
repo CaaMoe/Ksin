@@ -4,6 +4,8 @@ import moe.caa.multilogin.ksin.internal.bootstrap.KsinBootstrap;
 import moe.caa.multilogin.ksin.internal.configuration.MainConfig;
 import moe.caa.multilogin.ksin.internal.logger.KLogger;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.TestOnly;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -17,6 +19,11 @@ public class Ksin {
     public KLogger logger;
     public KsinBootstrap bootstrap;
 
+    @TestOnly
+    public void testInit() {
+        logger = new KLogger(LoggerFactory.getLogger(Ksin.class));
+        logger.setDebugAsInfo(true);
+    }
 
     public void enable(@NotNull KsinBootstrap bootstrap) {
         this.bootstrap = bootstrap;
@@ -30,7 +37,7 @@ public class Ksin {
     }
 
 
-    private void setupMetrics() {
+    void setupMetrics() {
         try {
             Class<?> metricsFactoryClass = Class.forName("org.bstats.velocity.Metrics$Factory");
 
