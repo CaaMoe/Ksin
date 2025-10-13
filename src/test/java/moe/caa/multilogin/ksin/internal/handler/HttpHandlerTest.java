@@ -4,10 +4,9 @@ import moe.caa.multilogin.ksin.internal.logger.KLogger;
 import moe.caa.multilogin.ksin.internal.main.Ksin;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
 
-import java.net.http.HttpClient;
 import java.util.concurrent.ExecutionException;
 
 public class HttpHandlerTest {
@@ -19,11 +18,11 @@ public class HttpHandlerTest {
         Ksin.INSTANCE.logger = new KLogger(LoggerFactory.getLogger(HttpHandlerTest.class));
         Ksin.INSTANCE.logger.setDebugAsInfo(true);
 
-        httpHandler.httpClient = HttpClient.newHttpClient();
+
+        httpHandler.testInit();
     }
 
-    @Tag("aaaa")
-    @org.junit.jupiter.api.Test
+    @Test
     public void test() throws ExecutionException, InterruptedException {
 
 //        HttpRequest request = httpHandler.buildGetTextureRequest("https://namemc.com/texture/92c20ddbe38e7216.png");

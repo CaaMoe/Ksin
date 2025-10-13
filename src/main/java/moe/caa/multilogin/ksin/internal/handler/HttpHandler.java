@@ -1,6 +1,7 @@
 package moe.caa.multilogin.ksin.internal.handler;
 
 import moe.caa.multilogin.ksin.internal.main.Ksin;
+import org.jetbrains.annotations.TestOnly;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -12,7 +13,12 @@ import java.util.concurrent.CompletableFuture;
 
 public class HttpHandler {
     private static final String HTTP_USER_AGENT = "Ksin/1.0";
-    protected HttpClient httpClient;
+    private HttpClient httpClient;
+
+    @TestOnly
+    void testInit() {
+        httpClient = HttpClient.newHttpClient();
+    }
 
     public void rebuildHttpClient() {
         HttpClient.Builder builder = HttpClient.newBuilder();
