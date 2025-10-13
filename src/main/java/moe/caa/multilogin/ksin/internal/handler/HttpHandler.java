@@ -17,7 +17,9 @@ public class HttpHandler {
 
     @TestOnly
     void testInit() {
-        httpClient = HttpClient.newHttpClient();
+        httpClient = HttpClient.newBuilder()
+                .connectTimeout(Duration.of(10_000, ChronoUnit.MILLIS))
+                .build();
     }
 
     public void rebuildHttpClient() {
