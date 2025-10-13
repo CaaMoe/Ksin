@@ -11,6 +11,8 @@ buildscript {
 plugins {
     id("java")
     id("com.gradleup.shadow") version libs.versions.shadow
+
+    id("xyz.jpenilla.run-velocity") version libs.versions.run.velocity
 }
 
 group = "moe.caa"
@@ -108,6 +110,13 @@ tasks.test {
     useJUnitPlatform()
     testLogging {
         exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+    }
+}
+
+
+tasks {
+    runVelocity {
+        velocityVersion("3.4.0-SNAPSHOT")
     }
 }
 
