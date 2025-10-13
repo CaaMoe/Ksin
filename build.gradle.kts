@@ -34,9 +34,16 @@ dependencies {
     compileOnlyAndExtra(libs.bstats.velocity)
     compileOnlyAndExtra(libs.bstats.base)
     compileOnlyAndExtra(libs.hikaricp)
+
+    testImplementation(libs.velocity.api)
+    testImplementation("org.slf4j:slf4j-simple:2.0.17")
+    testImplementation(platform("org.junit:junit-bom:5.10.0"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 fun DependencyHandler.compileOnlyAndExtra(dependencyNotation: Any) {
+    add("testImplementation", dependencyNotation)
     add("compileOnly", dependencyNotation)
     add("extra", dependencyNotation)
 }
@@ -93,6 +100,13 @@ tasks.processResources {
                 }.toString()
             )
         }
+    }
+}
+
+tasks.test {
+    useJUnitPlatform()
+    testLogging {
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
     }
 }
 
