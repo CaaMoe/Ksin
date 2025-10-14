@@ -23,7 +23,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 public non-sealed class MineSkinHttpHandler extends HttpHandler {
-    @NotNull CompletableFuture<BufferedImage> getTextureImage(@NotNull String textureUrl) {
+    private CompletableFuture<BufferedImage> getTextureImage(String textureUrl) {
         return sendAsyncRetry(HttpRequest.newBuilder()
                 .uri(URI.create(textureUrl))
                 .header("User-Agent", HTTP_USER_AGENT)
@@ -38,13 +38,13 @@ public non-sealed class MineSkinHttpHandler extends HttpHandler {
                 });
     }
 
-    private HttpRequest.Builder addMineSkinAuthHeader(@NotNull HttpRequest.Builder builder) {
+    private HttpRequest.Builder addMineSkinAuthHeader(HttpRequest.Builder builder) {
         String apiKey = Ksin.INSTANCE.config.mineSkin.get().apiKey.get();
         if (apiKey.isEmpty()) return builder;
         return builder.header("Authorization", "Bearer " + apiKey);
     }
 
-    private <T extends MineSkinResponse> @NotNull CompletableFuture<T> fetch(HttpRequest.Builder builder, Function<JsonElement, T> parser) {
+    private <T extends MineSkinResponse> CompletableFuture<T> fetch(HttpRequest.Builder builder, Function<JsonElement, T> parser) {
         return sendAsyncRetry(addMineSkinAuthHeader(builder)
                         .header("Accept", "application/json")
                         .header("User-Agent", HTTP_USER_AGENT)
@@ -53,7 +53,11 @@ public non-sealed class MineSkinHttpHandler extends HttpHandler {
                 .thenApply(stringHttpResponse -> JsonParser.parseString(stringHttpResponse.body()))
                 .thenApply(jsonElement -> {
                     try {
-                        return parser.apply(jsonElement);
+                        T response = parser.apply(jsonElement);
+                        if (!response.messages.isEmpty() || !response.errors.isEmpty() || !response.warnings.isEmpty()) {
+                            Ksin.INSTANCE.logger.debug("MineSkin api response: messages=" + response.messages + ", warnings=" + response.warnings + ", errors=" + response.errors);
+                        }
+                        return response;
                     } catch (Throwable e) {
                         Ksin.INSTANCE.logger.debug("Failed to parse mineskin response: " + jsonElement, e);
                         throw e;
@@ -67,7 +71,7 @@ public non-sealed class MineSkinHttpHandler extends HttpHandler {
                 , jsonElement -> MineSkinResponse.CapesResponse.parse(jsonElement.getAsJsonObject()));
     }
 
-    @NotNull String toBase64EncodedImages(@NotNull RenderedImage image) throws IOException {
+    private String toBase64EncodedImages(@NotNull RenderedImage image) throws IOException {
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             ImageIO.write(image, "png", baos);
             return "data:image/png;base64," + Base64.getEncoder().encodeToString(baos.toByteArray());
