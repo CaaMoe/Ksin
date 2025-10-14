@@ -34,8 +34,8 @@ public abstract class Configuration {
     }
 
     protected <E extends Enum<E>> @NotNull ConfigurationValue<E> enumConstantOpt(@NotNull NodePath path, Class<E> enumClass, @NotNull E defaultValue) {
-        return rawOpt(path, node -> {
-            String value = node.getString();
+        return raw(path, node -> {
+            String value = node.getString(defaultValue.name());
             if (value == null) {
                 return null;
             }
@@ -47,7 +47,7 @@ public abstract class Configuration {
             }
             throw new IllegalArgumentException("Invalid enum value '" + value + "' for enum " + enumClass.getName() + " at path " + Arrays.stream(path.array()).map(Object::toString).collect(Collectors.joining(".")));
 
-        }, defaultValue);
+        });
     }
 
     protected @NotNull ConfigurationValue<Boolean> bool(@NotNull NodePath path) {
@@ -55,7 +55,7 @@ public abstract class Configuration {
     }
 
     protected @NotNull ConfigurationValue<Boolean> boolOpt(@NotNull NodePath path, boolean defaultValue) {
-        return rawOpt(path, ConfigurationNode::getBoolean, defaultValue);
+        return raw(path, node -> node.getBoolean(defaultValue));
     }
 
     protected @NotNull ConfigurationValue<Integer> integer(@NotNull NodePath path) {
@@ -63,7 +63,7 @@ public abstract class Configuration {
     }
 
     protected @NotNull ConfigurationValue<Integer> integerOpt(@NotNull NodePath path, int defaultValue) {
-        return rawOpt(path, ConfigurationNode::getInt, defaultValue);
+        return raw(path, node -> node.getInt(defaultValue));
     }
 
     protected @NotNull ConfigurationValue<String> string(@NotNull NodePath path) {
@@ -71,7 +71,7 @@ public abstract class Configuration {
     }
 
     protected @NotNull ConfigurationValue<String> stringOpt(@NotNull NodePath path, @NotNull String defaultValue) {
-        return rawOpt(path, ConfigurationNode::getString, defaultValue);
+        return raw(path, node -> node.getString(defaultValue));
     }
 
     protected <T extends Configuration> @NotNull ConfigurationValue<T> sub(@NotNull NodePath path, @NotNull T configurationInstance) {
@@ -84,14 +84,6 @@ public abstract class Configuration {
                     Arrays.stream(path.array()).map(Object::toString).collect(Collectors.joining(".")) + " is a required value, but it is empty."
             );
         });
-    }
-
-    protected <T> @NotNull ConfigurationValue<T> rawOpt(@NotNull NodePath path, Function<@NotNull ConfigurationNode, @Nullable T> mapValue, Supplier<@NotNull T> defaultProvider) {
-        return new ConfigurationSpecifiedValue<>(path, mapValue, defaultProvider);
-    }
-
-    protected <T> @NotNull ConfigurationValue<T> rawOpt(@NotNull NodePath path, Function<@NotNull ConfigurationNode, @Nullable T> mapValue, @NotNull T defaultValue) {
-        return rawOpt(path, mapValue, (Supplier<T>) () -> defaultValue);
     }
 
     public void loadFrom(@NotNull ConfigurationNode node) {

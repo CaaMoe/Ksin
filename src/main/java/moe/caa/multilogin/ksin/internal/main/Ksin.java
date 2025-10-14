@@ -6,6 +6,8 @@ import moe.caa.multilogin.ksin.internal.logger.KLogger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.TestOnly;
 import org.slf4j.LoggerFactory;
+import org.spongepowered.configurate.ConfigurateException;
+import org.spongepowered.configurate.gson.GsonConfigurationLoader;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -20,9 +22,11 @@ public class Ksin {
     public KsinBootstrap bootstrap;
 
     @TestOnly
-    public void testInit() {
+    public void testInit() throws ConfigurateException {
         logger = new KLogger(LoggerFactory.getLogger(Ksin.class));
         logger.setDebugAsInfo(true);
+
+        config.loadFrom(GsonConfigurationLoader.builder().buildAndLoadString("{}"));
     }
 
     public void enable(@NotNull KsinBootstrap bootstrap) {
