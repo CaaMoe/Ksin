@@ -2,15 +2,21 @@ package moe.caa.multilogin.ksin.internal.main;
 
 import moe.caa.multilogin.ksin.internal.bootstrap.KsinBootstrap;
 import moe.caa.multilogin.ksin.internal.configuration.MainConfig;
+import moe.caa.multilogin.ksin.internal.database.DatabaseHandler;
+import moe.caa.multilogin.ksin.internal.handler.MineSkinHttpHandler;
 import moe.caa.multilogin.ksin.internal.logger.KLogger;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.TestOnly;
-import org.slf4j.LoggerFactory;
-import org.spongepowered.configurate.ConfigurateException;
-import org.spongepowered.configurate.gson.GsonConfigurationLoader;
+import org.spongepowered.configurate.hocon.HoconConfigurationLoader;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLConnection;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -20,26 +26,44 @@ public class Ksin {
     public final Executor asyncExecutor = Executors.newVirtualThreadPerTaskExecutor();
     public KLogger logger;
     public KsinBootstrap bootstrap;
+    public DatabaseHandler databaseHandler;
+    public MineSkinHttpHandler mineSkinHttpHandler;
 
-    @TestOnly
-    public void testInit() throws ConfigurateException {
-        logger = new KLogger(LoggerFactory.getLogger(Ksin.class));
-        logger.setDebugAsInfo(true);
-
-        config.loadFrom(GsonConfigurationLoader.builder().buildAndLoadString("{}"));
-    }
-
-    public void enable(@NotNull KsinBootstrap bootstrap) {
+    public void enable(@NotNull KsinBootstrap bootstrap) throws IOException {
         this.bootstrap = bootstrap;
         this.logger = bootstrap.logger;
+        this.databaseHandler = new DatabaseHandler();
+        this.mineSkinHttpHandler = new MineSkinHttpHandler();
 
+        reload();
         setupMetrics();
+    }
+
+    public void reload() throws IOException {
+        config.loadFrom(HoconConfigurationLoader.builder().path(saveResource("config.conf", false)).build().load());
     }
 
     public void disable() {
 
     }
 
+    Path saveResource(String resourcePath, boolean replace) throws IOException {
+        Path outputPath = bootstrap.dataDirectory.resolve(resourcePath);
+        if (replace || !Files.exists(outputPath)) {
+            URL url = getClass().getClassLoader().getResource(resourcePath);
+            URLConnection connection = Objects.requireNonNull(url).openConnection();
+            connection.setUseCaches(false);
+            try (InputStream stream = connection.getInputStream()) {
+
+                Path parentPath = outputPath.getParent();
+                if (parentPath != null && !Files.exists(parentPath)) {
+                    Files.createDirectories(parentPath);
+                }
+                Files.copy(stream, outputPath);
+            }
+        }
+        return outputPath;
+    }
 
     void setupMetrics() {
         try {

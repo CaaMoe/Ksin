@@ -39,16 +39,11 @@ dependencies {
     compileOnlyAndExtra(libs.bstats.base)
     compileOnlyAndExtra(libs.hikaricp)
 
-    testImplementation(libs.velocity.api)
-    testImplementation("org.slf4j:slf4j-simple:2.0.17")
-
-    testImplementation(platform("org.junit:junit-bom:5.10.0"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    compileOnlyAndExtra(libs.exposed.core)
+    compileOnlyAndExtra(libs.exposed.jdbc)
 }
 
 fun DependencyHandler.compileOnlyAndExtra(dependencyNotation: Any) {
-    add("testImplementation", dependencyNotation)
     add("compileOnly", dependencyNotation)
     add("extra", dependencyNotation)
 }
@@ -117,12 +112,6 @@ tasks.processResources {
         }
     }
 }
-
-tasks.test {
-    useJUnitPlatform()
-    ignoreFailures = true
-}
-
 
 tasks {
     runVelocity {

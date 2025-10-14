@@ -6,6 +6,9 @@ bstats = "3.0.2"
 hikaricp = "7.0.1"
 run-velocity = "2.3.1"
 
+exposed = "1.0.0-rc-2"
+
+
 velocity-api = "3.4.0-SNAPSHOT"
 
 [libraries]
@@ -17,3 +20,6 @@ kotlin-reflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", vers
 bstats-velocity = { group = "org.bstats", name = "bstats-velocity", version.ref = "bstats" }
 bstats-base = { group = "org.bstats", name = "bstats-base", version.ref = "bstats" }
 hikaricp = { group = "com.zaxxer", name = "HikariCP", version.ref = "hikaricp" }
+
+exposed-core = { group = "org.jetbrains.exposed", name = "exposed-core", version.ref = "exposed" }
+exposed-jdbc = { group = "org.jetbrains.exposed", name = "exposed-jdbc", version.ref = "exposed" }
