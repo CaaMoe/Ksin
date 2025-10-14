@@ -10,13 +10,11 @@ import org.spongepowered.configurate.ConfigurateException;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.util.concurrent.ExecutionException;
 
-public class HttpHandlerTest {
+public class MineSkinHttpHandlerTest {
     private static final String testTextureUrl = "https://namemc.com/texture/92c20ddbe38e7216.png";
-    private static final HttpHandler httpHandler = new HttpHandler();
+    private static final MineSkinHttpHandler httpHandler = new MineSkinHttpHandler();
 
     @BeforeEach
     public void setUp() throws ConfigurateException {
@@ -26,10 +24,9 @@ public class HttpHandlerTest {
 
     @Test
     public void testGetTexture() {
-        HttpRequest request = httpHandler.buildGetTextureRequest(testTextureUrl);
-        httpHandler.sendAsyncRetry(request, HttpResponse.BodyHandlers.ofInputStream(), 3).thenAcceptAsync(inputStreamHttpResponse -> {
+        httpHandler.getTextureFromUrl(testTextureUrl).thenAcceptAsync(inputStream -> {
             try {
-                BufferedImage image = ImageIO.read(inputStreamHttpResponse.body());
+                BufferedImage image = ImageIO.read(inputStream);
                 Assertions.assertEquals(64, image.getWidth());
                 Assertions.assertEquals(64, image.getHeight());
             } catch (IOException e) {
@@ -40,7 +37,11 @@ public class HttpHandlerTest {
 
     @Test
     public void testGetSupportedCapes() throws ExecutionException, InterruptedException {
-        Assertions.assertNotEquals(0, httpHandler.getSupportedCapes().get().size());
+        var completableFuture = httpHandler.getSupportedCapes();
+        for (MineSkinHttpHandler.SupportCape cape : completableFuture.get()) {
+            Ksin.INSTANCE.logger.info("Supported cape: " + cape);
+        }
+        Assertions.assertNotEquals(0, completableFuture.get().size());
     }
 
 

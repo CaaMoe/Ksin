@@ -1,62 +1,27 @@
 package moe.caa.multilogin.ksin.internal.handler;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import moe.caa.multilogin.ksin.internal.main.Ksin;
 
-import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-public class HttpHandler {
-    private static final String HTTP_USER_AGENT = "Ksin/1.0";
-    private HttpClient httpClient;
+public sealed class HttpHandler permits MineSkinHttpHandler {
+    protected static final String HTTP_USER_AGENT = "Ksin/1.0";
+    protected HttpClient httpClient;
 
     public void rebuildHttpClient() {
         HttpClient.Builder builder = HttpClient.newBuilder();
-        Ksin.INSTANCE.config.proxy.get().attachProxy(builder)
+        httpClient = Ksin.INSTANCE.config.proxy.get().attachProxy(builder)
                 .executor(Ksin.INSTANCE.asyncExecutor)
-                .connectTimeout(Duration.of(Ksin.INSTANCE.config.httpTimeout.get(), ChronoUnit.MILLIS));
-        httpClient = builder.build();
-    }
-
-    public HttpRequest buildGetTextureRequest(String textureUrl) {
-        return HttpRequest.newBuilder()
-                .uri(URI.create(textureUrl))
-                .header("User-Agent", HTTP_USER_AGENT)
-                .GET()
+                .connectTimeout(Duration.of(Ksin.INSTANCE.config.httpTimeout.get(), ChronoUnit.MILLIS))
                 .build();
     }
 
-    public CompletableFuture<List<String>> getSupportedCapes() {
-        return sendAsyncRetry(HttpRequest.newBuilder()
-                        .uri(URI.create(Ksin.INSTANCE.config.mineSkin.get().apiRoot.get() + "/v2/capes"))
-                        .header("Accept", "application/json")
-                        .header("User-Agent", HTTP_USER_AGENT)
-                        .header("Authorization", "Bearer " + Ksin.INSTANCE.config.mineSkin.get().apiKey.get())
-                        .GET()
-                        .build(), HttpResponse.BodyHandlers.ofString(),
-                Ksin.INSTANCE.config.httpRetries.get()).thenApply(stringHttpResponse -> {
-            List<String> result = new ArrayList<>();
-            for (JsonElement element : JsonParser.parseString(stringHttpResponse.body()).getAsJsonObject().getAsJsonArray("capes")) {
-                JsonObject subJsonObject = element.getAsJsonObject();
-                JsonElement supportedElement = subJsonObject.get("supported");
-                if (supportedElement != null && supportedElement.isJsonPrimitive() && supportedElement.getAsBoolean()) {
-                    result.add(subJsonObject.getAsJsonPrimitive("alias").getAsString());
-                }
-            }
-            return result;
-        });
-    }
-
-    public <T> CompletableFuture<HttpResponse<T>> sendAsyncRetry(HttpRequest request, HttpResponse.BodyHandler<T> responseBodyHandler, int retryCount) {
+    protected <T> CompletableFuture<HttpResponse<T>> sendAsyncRetry(HttpRequest request, HttpResponse.BodyHandler<T> responseBodyHandler, int retryCount) {
         return sendAsync(request, responseBodyHandler).handle((response, throwable) -> {
             if (throwable != null) {
                 if (retryCount > 0) {
@@ -73,7 +38,7 @@ public class HttpHandler {
         }).thenCompose(future -> future);
     }
 
-    public <T> CompletableFuture<HttpResponse<T>> sendAsync(HttpRequest request, HttpResponse.BodyHandler<T> responseBodyHandler) {
+    protected <T> CompletableFuture<HttpResponse<T>> sendAsync(HttpRequest request, HttpResponse.BodyHandler<T> responseBodyHandler) {
         CompletableFuture<HttpResponse<T>> future = new CompletableFuture<>();
         Ksin.INSTANCE.asyncExecutor.execute(() -> {
             Ksin.INSTANCE.logger.debug("Sending HTTP request(" + request.method() + "): " + request.uri());
