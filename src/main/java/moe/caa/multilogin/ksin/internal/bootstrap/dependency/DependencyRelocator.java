@@ -19,13 +19,11 @@ import java.util.concurrent.ConcurrentHashMap;
 
 class DependencyRelocator {
     private final @NotNull DependencyHandler dependencyHandler;
-    private final @NotNull Path relocatedDependenciesDirectory;
     @NotNull Map<@NotNull String, @NotNull String> relocations = new ConcurrentHashMap<>();
     private volatile @Nullable RelocateTool relocateTool;
 
     DependencyRelocator(@NotNull DependencyHandler dependencyHandler) {
         this.dependencyHandler = dependencyHandler;
-        this.relocatedDependenciesDirectory = dependencyHandler.dependenciesDirectory.resolve("relocated");
     }
 
     @NotNull Path relocate(@NotNull Dependency dependency, @NotNull Path dependencyJarPath) throws Throwable {
@@ -79,7 +77,7 @@ class DependencyRelocator {
 
         @NotNull Path relocate(@NotNull Dependency dependency, @NotNull Path dependencyJarPath) throws Throwable {
             long startTimeMills = System.currentTimeMillis();
-            Path relocatedDependencyJarPath = relocatedDependenciesDirectory.resolve(dependency.getJarPath());
+            Path relocatedDependencyJarPath = dependencyHandler.dependenciesDirectory.resolve(dependency.getRelocatedJarPath());
             if (!Files.exists(relocatedDependencyJarPath.getParent())) {
                 Files.createDirectories(relocatedDependencyJarPath.getParent());
             }

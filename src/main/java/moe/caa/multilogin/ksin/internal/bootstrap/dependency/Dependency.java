@@ -23,6 +23,10 @@ public record Dependency(
         return String.format("%s/%s/%s/%s", groupId.replace('.', '/'), artifactId, version, getJarFilename());
     }
 
+    public @NotNull String getRelocatedJarPath() {
+        return String.format("%s/%s/%s/relocated-%s", groupId.replace('.', '/'), artifactId, version, getJarFilename());
+    }
+
 
     public @NotNull String generateJarDownloadURL(String repository) {
         return repository + "/" + getJarPath();
