@@ -7,9 +7,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.spongepowered.configurate.ConfigurateException;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
 public class MineSkinHttpHandlerTest {
@@ -24,26 +21,45 @@ public class MineSkinHttpHandlerTest {
 
     @Test
     public void testGetTexture() {
-        httpHandler.getTextureFromUrl(testTextureUrl).thenAcceptAsync(inputStream -> {
-            try {
-                BufferedImage image = ImageIO.read(inputStream);
-                Assertions.assertEquals(64, image.getWidth());
-                Assertions.assertEquals(64, image.getHeight());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+        httpHandler.getTextureImage(testTextureUrl).thenAccept(image -> {
+            Assertions.assertEquals(64, image.getWidth());
+            Assertions.assertEquals(64, image.getHeight());
         }).join();
     }
 
     @Test
-    public void testGetSupportedCapes() throws ExecutionException, InterruptedException {
-        var completableFuture = httpHandler.getSupportedCapes();
-        for (MineSkinHttpHandler.SupportCape cape : completableFuture.get()) {
-            Ksin.INSTANCE.logger.info("Supported cape: " + cape);
+    public void testGetCapes() throws ExecutionException, InterruptedException {
+        var response = httpHandler.getCapes().get();
+        printInfo(response);
+        if (response instanceof MineSkinHttpHandler.MineSkinResponse.CapesResponse.SuccessCapesResponse) {
+            Assertions.assertNotEquals(0, ((MineSkinHttpHandler.MineSkinResponse.CapesResponse.SuccessCapesResponse) response).capes.size());
         }
-        Assertions.assertNotEquals(0, completableFuture.get().size());
     }
 
+    @Test
+    public void testGenerate() throws ExecutionException, InterruptedException {
+        httpHandler.getTextureImage(testTextureUrl).thenApply(image -> {
+            try {
+                return httpHandler.generate(image, ((MineSkinHttpHandler.MineSkinResponse.CapesResponse.SuccessCapesResponse) httpHandler.getCapes().get()).capes.getFirst(), MineSkinHttpHandler.SkinVariant.SLIM, MineSkinHttpHandler.SkinVisibility.PUBLIC).thenAcceptAsync(response -> {
+                    printInfo(response);
+                }).join();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }).get();
+    }
+
+    private void printInfo(MineSkinHttpHandler.MineSkinResponse response) {
+        response.errors.forEach((code, message) -> {
+            Ksin.INSTANCE.logger.error(code + " <-> " + message);
+        });
+        response.warnings.forEach((code, message) -> {
+            Ksin.INSTANCE.logger.warn(code + " <-> " + message);
+        });
+        response.messages.forEach((code, message) -> {
+            Ksin.INSTANCE.logger.info(code + " <-> " + message);
+        });
+    }
 
     @AfterEach
     public void tearDown() {

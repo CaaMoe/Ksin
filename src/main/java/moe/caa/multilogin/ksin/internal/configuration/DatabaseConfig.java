@@ -10,7 +10,7 @@ public class DatabaseConfig extends Configuration {
     private final ConfigurationValue<Boolean> autoCommit = boolOpt(NodePath.path("autoCommit"), false);
 
 
-    public @NotNull HikariConfig buildHikariConfig(){
+    public @NotNull HikariConfig buildHikariConfig() {
         HikariConfig config = new HikariConfig();
         config.setCatalog(catalog.get());
         config.setAutoCommit(autoCommit.get());
