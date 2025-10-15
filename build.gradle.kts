@@ -24,12 +24,12 @@ version = "1.0.0+${getGitCommitID().substring(0, 8)}"
 configurations.register("extra")
 
 repositories {
+    mavenCentral()
+
     file("config/repositories.txt").readLines()
         .map { it.trim() }
         .filter { it.isNotEmpty() }
         .forEach { maven(it) }
-
-    mavenCentral()
 }
 
 dependencies {
