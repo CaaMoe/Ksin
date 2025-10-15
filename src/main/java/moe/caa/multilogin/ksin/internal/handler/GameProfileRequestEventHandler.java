@@ -36,84 +36,82 @@ public class GameProfileRequestEventHandler {
 
 
         Ksin.INSTANCE.bootstrap.server.getEventManager().register(Ksin.INSTANCE.bootstrap, GameProfileRequestEvent.class,
-                (AwaitingEventExecutor<GameProfileRequestEvent>) event -> EventTask.withContinuation(continuation -> {
-                    Ksin.INSTANCE.asyncExecutor.execute(() -> {
-                        try {
-                            if (Ksin.INSTANCE.config.badSkinRepairerMethod.get() == MainConfig.BadSkinRepairerMethod.OFF)
-                                return;
+                (AwaitingEventExecutor<GameProfileRequestEvent>) event -> EventTask.withContinuation(continuation -> Ksin.INSTANCE.asyncExecutor.execute(() -> {
+                    try {
+                        if (Ksin.INSTANCE.config.badSkinRepairerMethod.get() == MainConfig.BadSkinRepairerMethod.OFF)
+                            return;
 
-                            GameProfile originalProfile = event.getOriginalProfile();
-                            GameProfile.Property originalTexturesProperty = originalProfile.getProperties().stream().filter(property -> property.getName().equals("textures")).findFirst().orElse(null);
-                            if (originalTexturesProperty == null || originalTexturesProperty.getValue().isEmpty())
-                                return;
+                        GameProfile originalProfile = event.getOriginalProfile();
+                        GameProfile.Property originalTexturesProperty = originalProfile.getProperties().stream().filter(property -> property.getName().equals("textures")).findFirst().orElse(null);
+                        if (originalTexturesProperty == null || originalTexturesProperty.getValue().isEmpty())
+                            return;
 
-                            JsonElement jsonElement = JsonParser.parseString(new String(Base64.getDecoder().decode(originalTexturesProperty.getValue()), StandardCharsets.UTF_8));
-                            if (jsonElement.isJsonObject() && jsonElement.getAsJsonObject().has("textures")) {
-                                JsonObject texturesJsonObject = jsonElement.getAsJsonObject().getAsJsonObject("textures");
-                                if (texturesJsonObject.has("SKIN")) {
-                                    JsonObject skinJsonObject = texturesJsonObject.getAsJsonObject("SKIN");
-                                    if (skinJsonObject.has("url")) {
-                                        String url = skinJsonObject.get("url").getAsString();
-                                        SkinVariant variant = skinJsonObject.has("metadata")
-                                                && skinJsonObject.getAsJsonObject("metadata").has("model")
-                                                && skinJsonObject.getAsJsonObject("metadata").getAsJsonPrimitive("model")
-                                                .getAsString().equals("slim") ? SkinVariant.SLIM : SkinVariant.CLASSIC;
+                        JsonElement jsonElement = JsonParser.parseString(new String(Base64.getDecoder().decode(originalTexturesProperty.getValue()), StandardCharsets.UTF_8));
+                        if (jsonElement.isJsonObject() && jsonElement.getAsJsonObject().has("textures")) {
+                            JsonObject texturesJsonObject = jsonElement.getAsJsonObject().getAsJsonObject("textures");
+                            if (texturesJsonObject.has("SKIN")) {
+                                JsonObject skinJsonObject = texturesJsonObject.getAsJsonObject("SKIN");
+                                if (skinJsonObject.has("url")) {
+                                    String url = skinJsonObject.get("url").getAsString();
+                                    SkinVariant variant = skinJsonObject.has("metadata")
+                                            && skinJsonObject.getAsJsonObject("metadata").has("model")
+                                            && skinJsonObject.getAsJsonObject("metadata").getAsJsonPrimitive("model")
+                                            .getAsString().equals("slim") ? SkinVariant.SLIM : SkinVariant.CLASSIC;
 
-                                        // 缓存修复
-                                        GameProfile.Property repairResult = Ksin.INSTANCE.databaseHandler.queryRepairResult(url, "", variant);
-                                        if (repairResult != null) {
+                                    // 缓存修复
+                                    GameProfile.Property repairResult = Ksin.INSTANCE.databaseHandler.queryRepairResult(url, "", variant);
+                                    if (repairResult != null) {
+                                        GameProfile gameProfile = event.getGameProfile();
+                                        gameProfile.addProperty(repairResult);
+                                        event.setGameProfile(gameProfile);
+                                        Ksin.INSTANCE.logger.info("Applied repaired skin(cache) for player " + originalProfile.getName());
+                                        return;
+                                    }
+
+                                    // 要不要释放事件
+                                    if (Ksin.INSTANCE.config.badSkinRepairerMethod.get() == MainConfig.BadSkinRepairerMethod.ASYNC)
+                                        continuation.resume();
+
+                                    // 检查材质有没有坏掉
+                                    if (isAllowedTextureDomain(url) && isSignatureValid(originalTexturesProperty))
+                                        return;
+
+                                    // 修!
+                                    Ksin.INSTANCE.logger.info("Detected bad skin for url " + url + "( " + originalProfile.getName() + " ), repairing...");
+                                    BufferedImage textureImage = Ksin.INSTANCE.mineSkinHttpHandler.getTextureImage(url).get();
+
+                                    if (!isAllowedSizeTexture(textureImage)) {
+                                        Ksin.INSTANCE.logger.warn("The skin of url " + url + "( " + originalProfile.getName() + " ) has an illegal size, cannot be repaired.");
+                                        return;
+                                    }
+                                    MineSkinHttpHandler.MineSkinResponse.GenerateResponse generateResponse = Ksin.INSTANCE.mineSkinHttpHandler
+                                            .generate(textureImage, null, variant, MineSkinHttpHandler.SkinVisibility.PUBLIC).get();
+
+                                    switch (generateResponse) {
+                                        case MineSkinHttpHandler.MineSkinResponse.GenerateResponse.FailureGenerateResponse failureGenerateResponse -> {
+                                            Ksin.INSTANCE.logger.warn("Failed to repair skin for url " + url + "( " + originalProfile.getName() + " ), errors: " + failureGenerateResponse.errors.entrySet()
+                                                    .stream().map(stringStringEntry -> stringStringEntry.getKey() + " (" + stringStringEntry.getValue() + ")").collect(Collectors.joining(", ")));
+                                        }
+                                        case MineSkinHttpHandler.MineSkinResponse.GenerateResponse.SuccessGenerateResponse successGenerateResponse -> {
+                                            GameProfile.Property newTexturesProperty = new GameProfile.Property("textures", successGenerateResponse.textureValue, successGenerateResponse.textureSignature);
                                             GameProfile gameProfile = event.getGameProfile();
-                                            gameProfile.addProperty(repairResult);
+                                            gameProfile.addProperty(newTexturesProperty);
                                             event.setGameProfile(gameProfile);
-                                            Ksin.INSTANCE.logger.info("Applied repaired skin(cache) for player " + originalProfile.getName());
-                                            return;
-                                        }
 
-                                        // 要不要释放事件
-                                        if (Ksin.INSTANCE.config.badSkinRepairerMethod.get() == MainConfig.BadSkinRepairerMethod.ASYNC)
-                                            continuation.resume();
-
-                                        // 检查材质有没有坏掉
-                                        if (isAllowedTextureDomain(url) && isSignatureValid(originalTexturesProperty))
-                                            return;
-
-                                        // 修!
-                                        Ksin.INSTANCE.logger.info("Detected bad skin for url " + url + "( " + originalProfile.getName() + " ), repairing...");
-                                        BufferedImage textureImage = Ksin.INSTANCE.mineSkinHttpHandler.getTextureImage(url).get();
-
-                                        if (!isAllowedSizeTexture(textureImage)) {
-                                            Ksin.INSTANCE.logger.warn("The skin of url " + url + "( " + originalProfile.getName() + " ) has an illegal size, cannot be repaired.");
-                                            return;
-                                        }
-                                        MineSkinHttpHandler.MineSkinResponse.GenerateResponse generateResponse = Ksin.INSTANCE.mineSkinHttpHandler
-                                                .generate(textureImage, null, variant, MineSkinHttpHandler.SkinVisibility.PUBLIC).get();
-
-                                        switch (generateResponse) {
-                                            case MineSkinHttpHandler.MineSkinResponse.GenerateResponse.FailureGenerateResponse failureGenerateResponse -> {
-                                                Ksin.INSTANCE.logger.warn("Failed to repair skin for url " + url + "( " + originalProfile.getName() + " ), errors: " + failureGenerateResponse.errors.entrySet()
-                                                        .stream().map(stringStringEntry -> stringStringEntry.getKey() + " (" + stringStringEntry.getValue() + ")").collect(Collectors.joining(", ")));
-                                            }
-                                            case MineSkinHttpHandler.MineSkinResponse.GenerateResponse.SuccessGenerateResponse successGenerateResponse -> {
-                                                GameProfile.Property newTexturesProperty = new GameProfile.Property("textures", successGenerateResponse.textureValue, successGenerateResponse.textureSignature);
-                                                GameProfile gameProfile = event.getGameProfile();
-                                                gameProfile.addProperty(newTexturesProperty);
-                                                event.setGameProfile(gameProfile);
-
-                                                Ksin.INSTANCE.logger.info("Successfully repaired skin for url " + url + "( " + originalProfile.getName() + " )");
-                                                Ksin.INSTANCE.logger.info("Applied repaired skin(" + Ksin.INSTANCE.config.badSkinRepairerMethod.get().name().toLowerCase() + ") for player " + originalProfile.getName());
-                                                Ksin.INSTANCE.databaseHandler.saveRepairedSkin(url, "", variant, successGenerateResponse.textureValue, successGenerateResponse.textureSignature);
-                                            }
+                                            Ksin.INSTANCE.logger.info("Successfully repaired skin for url " + url + "( " + originalProfile.getName() + " )");
+                                            Ksin.INSTANCE.logger.info("Applied repaired skin(" + Ksin.INSTANCE.config.badSkinRepairerMethod.get().name().toLowerCase() + ") for player " + originalProfile.getName());
+                                            Ksin.INSTANCE.databaseHandler.saveRepairedSkin(url, "", variant, successGenerateResponse.textureValue, successGenerateResponse.textureSignature);
                                         }
                                     }
                                 }
                             }
-                        } catch (Exception e) {
-                            throw new RuntimeException(e);
-                        } finally {
-                            continuation.resume();
                         }
-                    });
-                })
+                    } catch (Exception e) {
+                        Ksin.INSTANCE.logger.error("An exception occurred while repairing skin for player " + event.getOriginalProfile().getName(), e);
+                    } finally {
+                        continuation.resume();
+                    }
+                }))
         );
     }
 
