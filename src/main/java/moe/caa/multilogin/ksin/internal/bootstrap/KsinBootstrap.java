@@ -94,16 +94,17 @@ public class KsinBootstrap {
         }
         // outside repository
         Path outsideRepositories = dataDirectory.resolve("repositories.txt");
-        if (Files.exists(outsideRepositories)) {
-            List<String> outsideRepositoriesList = Files.readAllLines(outsideRepositories).stream()
-                    .map(String::trim)
-                    .filter(e -> !e.isEmpty())
-                    .filter(e -> !e.startsWith("#"))
-                    .toList();
-            for (String outsideRepository : outsideRepositoriesList) {
-                dependencyHandler.addDependencyRepository(outsideRepository);
-                logger.info("Added outside dependency repository: " + outsideRepository);
-            }
+        if (!Files.exists(outsideRepositories)) {
+            Files.writeString(outsideRepositories, "# You can add your own dependency repositories here.\n# One repository per line.\n# Lines starting with # are ignored.\n# Example:\n# https://repo.maven.apache.org/maven2/\n");
+        }
+        List<String> outsideRepositoriesList = Files.readAllLines(outsideRepositories).stream()
+                .map(String::trim)
+                .filter(e -> !e.isEmpty())
+                .filter(e -> !e.startsWith("#"))
+                .toList();
+        for (String outsideRepository : outsideRepositoriesList) {
+            dependencyHandler.addDependencyRepository(outsideRepository);
+            logger.info("Added outside dependency repository: " + outsideRepository);
         }
 
         // relocation
@@ -126,19 +127,20 @@ public class KsinBootstrap {
         }
         // outside repository
         Path outsideRelocations = dataDirectory.resolve("relocations.txt");
-        if (Files.exists(outsideRelocations)) {
-            List<String[]> outsideRelocationsList = Files.readAllLines(outsideRelocations).stream()
-                    .map(String::trim)
-                    .filter(e -> !e.isEmpty())
-                    .filter(e -> !e.startsWith("#"))
-                    .map(s -> s.split("\\s+"))
-                    .toList();
-            for (String[] outsideRelocation : outsideRelocationsList) {
-                String original = outsideRelocation[0];
-                String relocated = outsideRelocation[1];
-                dependencyHandler.addRelocation(original, relocated);
-                logger.info("Added outside dependency relocation: " + original + " -> " + relocated);
-            }
+        if (!Files.exists(outsideRelocations)) {
+            Files.writeString(outsideRelocations, "# You can add your own dependency relocations here.\n# One relocation per line, format: <original> <relocated>\n# Lines starting with # are ignored.\n# Example:\n# com.google.guava com.yourorg.shadowed.com.google.guava\n");
+        }
+        List<String[]> outsideRelocationsList = Files.readAllLines(outsideRelocations).stream()
+                .map(String::trim)
+                .filter(e -> !e.isEmpty())
+                .filter(e -> !e.startsWith("#"))
+                .map(s -> s.split("\\s+"))
+                .toList();
+        for (String[] outsideRelocation : outsideRelocationsList) {
+            String original = outsideRelocation[0];
+            String relocated = outsideRelocation[1];
+            dependencyHandler.addRelocation(original, relocated);
+            logger.info("Added outside dependency relocation: " + original + " -> " + relocated);
         }
 
         // dependency
@@ -156,17 +158,18 @@ public class KsinBootstrap {
         }
         // outside dependency
         Path outsideDependencies = dataDirectory.resolve("dependencies.txt");
-        if (Files.exists(outsideDependencies)) {
-            List<String> outsideDependenciesList = Files.readAllLines(outsideDependencies).stream()
-                    .map(String::trim)
-                    .filter(e -> !e.isEmpty())
-                    .filter(e -> !e.startsWith("#"))
-                    .toList();
-            for (String outsideDependencyStr : outsideDependenciesList) {
-                Dependency dependency = Dependency.ofString(outsideDependencyStr);
-                server.getPluginManager().addToClasspath(KsinBootstrap.this, dependencyHandler.handleDependency(dependency));
-                logger.info("Loaded outside dependency: " + dependency);
-            }
+        if (!Files.exists(outsideDependencies)) {
+            Files.writeString(outsideDependencies, "# You can add your own dependencies here.\n# One dependency per line, format: <groupId>:<artifactId>:<version>\n# Lines starting with # are ignored.\n# Example:\n# com.google.guava:guava:32.1.2-jre\n\norg.xerial:sqlite-jdbc:3.50.3.0");
+        }
+        List<String> outsideDependenciesList = Files.readAllLines(outsideDependencies).stream()
+                .map(String::trim)
+                .filter(e -> !e.isEmpty())
+                .filter(e -> !e.startsWith("#"))
+                .toList();
+        for (String outsideDependencyStr : outsideDependenciesList) {
+            Dependency dependency = Dependency.ofString(outsideDependencyStr);
+            server.getPluginManager().addToClasspath(KsinBootstrap.this, dependencyHandler.handleDependency(dependency));
+            logger.info("Loaded outside dependency: " + dependency);
         }
     }
 

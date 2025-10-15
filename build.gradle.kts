@@ -120,7 +120,7 @@ tasks.processResources {
 
 tasks {
     runVelocity {
-        velocityVersion("3.4.0-SNAPSHOT")
+        velocityVersion(libs.velocity.api.get().version!!)
     }
 }
 
