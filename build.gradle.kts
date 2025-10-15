@@ -28,6 +28,8 @@ repositories {
         .map { it.trim() }
         .filter { it.isNotEmpty() }
         .forEach { maven(it) }
+
+    mavenCentral()
 }
 
 dependencies {
