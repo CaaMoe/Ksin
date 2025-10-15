@@ -24,7 +24,9 @@ import java.util.concurrent.Executors;
 public class Ksin {
     public static final @NotNull Ksin INSTANCE = new Ksin();
     public final MainConfig config = new MainConfig();
-    public final Executor asyncExecutor = Executors.newVirtualThreadPerTaskExecutor();
+    public final Executor asyncExecutor = Executors.newThreadPerTaskExecutor(Thread.ofVirtual()
+            .name("Ksin Virtual Task #%d", 1)
+            .factory());
     public KLogger logger;
     public KsinBootstrap bootstrap;
     public DatabaseHandler databaseHandler;
