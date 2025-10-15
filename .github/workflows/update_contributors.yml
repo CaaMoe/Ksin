@@ -19,6 +19,7 @@ jobs:
             | sed 's#    "login": "##g' \
             | sed 's#",##g' \
             | sed 's#github-actions\[bot\]##g' \
+            | sed 's#dependabot\[bot\]##g' \
             | sed '/^[[:space:]]*$/d' \
             > config/contributors.txt
           git config user.name 'github-actions'
