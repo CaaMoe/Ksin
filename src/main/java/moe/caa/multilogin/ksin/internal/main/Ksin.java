@@ -1,5 +1,7 @@
 package moe.caa.multilogin.ksin.internal.main;
 
+import com.velocitypowered.api.event.Subscribe;
+import com.velocitypowered.api.event.proxy.ProxyReloadEvent;
 import moe.caa.multilogin.ksin.internal.bootstrap.KsinBootstrap;
 import moe.caa.multilogin.ksin.internal.configuration.MainConfig;
 import moe.caa.multilogin.ksin.internal.database.DatabaseHandler;
@@ -39,6 +41,14 @@ public class Ksin {
 
         databaseHandler.initDatabase();
         new GameProfileRequestEventHandler().init();
+        bootstrap.server.getEventManager().register(bootstrap, this);
+    }
+
+    @Subscribe
+    public void onReload(ProxyReloadEvent event) throws IOException {
+        reload();
+
+        logger.info("Reload complete.");
     }
 
     public void reload() throws IOException {
