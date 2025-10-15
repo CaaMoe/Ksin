@@ -12,13 +12,13 @@
 
 ## 概述
 
-Ksin 是一个专为 Minecraft Velocity 代理服务器设计的插件, 功能是修复签名受损的皮肤, 并提供其他额外的皮肤管理功能.
+Ksin 是一个专为 Minecraft Velocity 代理服务器设计的插件, 功能是修复签名受损的皮肤, 并提供其他额外的皮肤管理功能(如果有).
 
 ## 安装
 
 1. 确保你的服务器是 Velocity 类型代理端
 2. 确保服务器运行 Java 21 或更高版本
-3. 从 [Actions](https://github.com/CaaMoe/Ksin/actions) 页面下载最新构建版本的 Ksin.jar(如果没有的话可以 [Fork](https://github.com/CaaMoe/Ksin/fork) 一下随便提交一个文件开启 Actions)
+3. 从 [Actions](https://github.com/CaaMoe/Ksin/actions) 页面下载最新构建版本的 Ksin.jar(如果没有的话可以参考下方的构建步骤自己构建)
 4. 将下载的 JAR 文件放入 Velocity 服务器的 `plugins` 文件夹中
 5. 重启 Velocity 服务器
 
