@@ -15,10 +15,10 @@ object PlayerCurrentUseTable : CompositeIdTable("ksin_player_current_use") {
 object RepairedSkinTable : IntIdTable("ksin_repaired_skin_cache", "skin_id") {
     val originalTextureUrl = varchar("original_texture_url", 255)
     val repairedSkinVariant = enumeration("repaired_skin_variant", SkinVariant::class)
-    val repairedSkinCapeAlias = varchar("repaired_skin_alias", 255)
+    val repairedSkinCapeAlias = varchar("repaired_skin_alias", 50)
 
-    val repairedSkinTextureValue = varchar("repaired_skin_texture_value", 255)
-    val repairedSkinTextureSignature = varchar("repaired_skin_texture_signature", 255)
+    val repairedSkinTextureValue = text("repaired_skin_texture_value")
+    val repairedSkinTextureSignature = text("repaired_skin_texture_signature")
 
     init {
         uniqueIndex(originalTextureUrl, repairedSkinVariant, repairedSkinCapeAlias)

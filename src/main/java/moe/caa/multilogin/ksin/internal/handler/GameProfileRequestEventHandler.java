@@ -77,11 +77,11 @@ public class GameProfileRequestEventHandler {
                                         return;
 
                                     // 修!
-                                    Ksin.INSTANCE.logger.info("Detected bad skin for url " + url + "( " + originalProfile.getName() + " ), repairing...");
+                                    Ksin.INSTANCE.logger.info("Detected bad skin for url " + url + "(" + originalProfile.getName() + "), repairing...");
                                     BufferedImage textureImage = Ksin.INSTANCE.mineSkinHttpHandler.getTextureImage(url).get();
 
                                     if (!isAllowedSizeTexture(textureImage)) {
-                                        Ksin.INSTANCE.logger.warn("The skin of url " + url + "( " + originalProfile.getName() + " ) has an illegal size, cannot be repaired.");
+                                        Ksin.INSTANCE.logger.warn("The skin of url " + url + "(" + originalProfile.getName() + ") has an illegal size, cannot be repaired.");
                                         return;
                                     }
                                     MineSkinHttpHandler.MineSkinResponse.GenerateResponse generateResponse = Ksin.INSTANCE.mineSkinHttpHandler
@@ -89,7 +89,7 @@ public class GameProfileRequestEventHandler {
 
                                     switch (generateResponse) {
                                         case MineSkinHttpHandler.MineSkinResponse.GenerateResponse.FailureGenerateResponse failureGenerateResponse -> {
-                                            Ksin.INSTANCE.logger.warn("Failed to repair skin for url " + url + "( " + originalProfile.getName() + " ), errors: " + failureGenerateResponse.errors.entrySet()
+                                            Ksin.INSTANCE.logger.warn("Failed to repair skin for url " + url + "(" + originalProfile.getName() + "), errors: " + failureGenerateResponse.errors.entrySet()
                                                     .stream().map(stringStringEntry -> stringStringEntry.getKey() + " (" + stringStringEntry.getValue() + ")").collect(Collectors.joining(", ")));
                                         }
                                         case MineSkinHttpHandler.MineSkinResponse.GenerateResponse.SuccessGenerateResponse successGenerateResponse -> {
@@ -98,7 +98,7 @@ public class GameProfileRequestEventHandler {
                                             gameProfile.addProperty(newTexturesProperty);
                                             event.setGameProfile(gameProfile);
 
-                                            Ksin.INSTANCE.logger.info("Successfully repaired skin for url " + url + "( " + originalProfile.getName() + " )");
+                                            Ksin.INSTANCE.logger.info("Successfully repaired skin for url " + url + "(" + originalProfile.getName() + ")");
                                             Ksin.INSTANCE.logger.info("Applied repaired skin(" + Ksin.INSTANCE.config.badSkinRepairerMethod.get().name().toLowerCase() + ") for player " + originalProfile.getName());
                                             Ksin.INSTANCE.databaseHandler.saveRepairedSkin(url, "", variant, successGenerateResponse.textureValue, successGenerateResponse.textureSignature);
                                         }

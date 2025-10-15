@@ -57,7 +57,7 @@ public class Ksin {
     }
 
     public void disable() {
-        if(databaseHandler != null){
+        if (databaseHandler != null) {
             databaseHandler.close();
         }
     }
