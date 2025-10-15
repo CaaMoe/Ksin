@@ -6,17 +6,15 @@ import moe.caa.multilogin.ksin.internal.database.DatabaseHandler;
 import moe.caa.multilogin.ksin.internal.handler.MineSkinHttpHandler;
 import moe.caa.multilogin.ksin.internal.logger.KLogger;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.hocon.HoconConfigurationLoader;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.net.URL;
-import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -32,11 +30,13 @@ public class Ksin {
     public void enable(@NotNull KsinBootstrap bootstrap) throws IOException {
         this.bootstrap = bootstrap;
         this.logger = bootstrap.logger;
-        this.databaseHandler = new DatabaseHandler();
+        this.databaseHandler = DatabaseHandler.INSTANCE;
         this.mineSkinHttpHandler = new MineSkinHttpHandler();
 
         reload();
         setupMetrics();
+
+        databaseHandler.initDatabase();
     }
 
     public void reload() throws IOException {
@@ -44,16 +44,17 @@ public class Ksin {
     }
 
     public void disable() {
-
+        databaseHandler.close();
     }
 
-    Path saveResource(String resourcePath, boolean replace) throws IOException {
+    public @Nullable InputStream getResourceAsStream(String resourcePath) {
+        return getClass().getClassLoader().getResourceAsStream(resourcePath);
+    }
+
+    public Path saveResource(String resourcePath, boolean replace) throws IOException {
         Path outputPath = bootstrap.dataDirectory.resolve(resourcePath);
         if (replace || !Files.exists(outputPath)) {
-            URL url = getClass().getClassLoader().getResource(resourcePath);
-            URLConnection connection = Objects.requireNonNull(url).openConnection();
-            connection.setUseCaches(false);
-            try (InputStream stream = connection.getInputStream()) {
+            try (InputStream stream = getResourceAsStream(resourcePath)) {
 
                 Path parentPath = outputPath.getParent();
                 if (parentPath != null && !Files.exists(parentPath)) {

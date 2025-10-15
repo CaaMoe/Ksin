@@ -12,6 +12,7 @@ buildscript {
 
 plugins {
     id("java")
+    id("org.jetbrains.kotlin.jvm") version libs.versions.kotlin
     id("com.gradleup.shadow") version libs.versions.shadow
 
     id("xyz.jpenilla.run-velocity") version libs.versions.run.velocity
@@ -41,6 +42,8 @@ dependencies {
 
     compileOnlyAndExtra(libs.exposed.core)
     compileOnlyAndExtra(libs.exposed.jdbc)
+    compileOnlyAndExtra(libs.exposed.migration.core)
+    compileOnlyAndExtra(libs.exposed.migration.jdbc)
 }
 
 fun DependencyHandler.compileOnlyAndExtra(dependencyNotation: Any) {
