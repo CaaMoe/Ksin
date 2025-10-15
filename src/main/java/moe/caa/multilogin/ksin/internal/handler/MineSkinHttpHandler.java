@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import moe.caa.multilogin.ksin.internal.SkinVariant;
 import moe.caa.multilogin.ksin.internal.main.Ksin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -23,7 +24,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 public non-sealed class MineSkinHttpHandler extends HttpHandler {
-    private CompletableFuture<BufferedImage> getTextureImage(String textureUrl) {
+    public CompletableFuture<BufferedImage> getTextureImage(String textureUrl) {
         return sendAsyncRetry(HttpRequest.newBuilder()
                 .uri(URI.create(textureUrl))
                 .header("User-Agent", HTTP_USER_AGENT)
@@ -95,11 +96,6 @@ public non-sealed class MineSkinHttpHandler extends HttpHandler {
                 , jsonElement -> MineSkinResponse.GenerateResponse.parse(jsonElement.getAsJsonObject()));
     }
 
-    public enum SkinVariant {
-        CLASSIC,
-        SLIM,
-        UNKNOWN;
-    }
 
     public enum SkinVisibility {
         PUBLIC,

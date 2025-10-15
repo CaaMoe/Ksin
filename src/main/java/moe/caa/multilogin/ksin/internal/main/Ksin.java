@@ -3,6 +3,7 @@ package moe.caa.multilogin.ksin.internal.main;
 import moe.caa.multilogin.ksin.internal.bootstrap.KsinBootstrap;
 import moe.caa.multilogin.ksin.internal.configuration.MainConfig;
 import moe.caa.multilogin.ksin.internal.database.DatabaseHandler;
+import moe.caa.multilogin.ksin.internal.handler.GameProfileRequestEventHandler;
 import moe.caa.multilogin.ksin.internal.handler.MineSkinHttpHandler;
 import moe.caa.multilogin.ksin.internal.logger.KLogger;
 import org.jetbrains.annotations.NotNull;
@@ -37,10 +38,12 @@ public class Ksin {
         setupMetrics();
 
         databaseHandler.initDatabase();
+        new GameProfileRequestEventHandler().init();
     }
 
     public void reload() throws IOException {
         config.loadFrom(HoconConfigurationLoader.builder().path(saveResource("config.conf", false)).build().load());
+        mineSkinHttpHandler.rebuildHttpClient();
     }
 
     public void disable() {

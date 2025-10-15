@@ -1,10 +1,16 @@
 package moe.caa.multilogin.ksin.internal.database
 
+import com.velocitypowered.api.util.GameProfile
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
+import moe.caa.multilogin.ksin.internal.SkinVariant
 import moe.caa.multilogin.ksin.internal.main.Ksin
+import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
+import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.migration.jdbc.MigrationUtils
 import java.io.FileReader
@@ -49,6 +55,38 @@ object DatabaseHandler {
     fun close() {
         if (this::dataSource.isInitialized) {
             dataSource.close()
+        }
+    }
+
+    fun queryRepairResult(url: String, cape: String, variant: SkinVariant) = transaction(database) {
+        RepairedSkinTable
+            .select(RepairedSkinTable.repairedSkinTextureValue, RepairedSkinTable.repairedSkinTextureSignature)
+            .where {
+                (RepairedSkinTable.originalTextureUrl eq url) and
+                        (RepairedSkinTable.repairedSkinVariant eq variant) and
+                        (RepairedSkinTable.repairedSkinCapeAlias eq cape)
+            }.limit(1).map {
+                GameProfile.Property(
+                    "textures",
+                    it[RepairedSkinTable.repairedSkinTextureValue],
+                    it[RepairedSkinTable.repairedSkinTextureSignature]
+                )
+            }.firstOrNull()
+    }
+
+    fun saveRepairedSkin(
+        url: String,
+        cape: String,
+        variant: SkinVariant,
+        textureValue: String,
+        textureSignature: String
+    ) = transaction(database) {
+        RepairedSkinTable.insert {
+            it[originalTextureUrl] = url
+            it[repairedSkinCapeAlias] = cape
+            it[repairedSkinVariant] = variant
+            it[repairedSkinTextureValue] = textureValue
+            it[repairedSkinTextureSignature] = textureSignature
         }
     }
 }
