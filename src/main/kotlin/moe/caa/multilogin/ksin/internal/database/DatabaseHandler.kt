@@ -4,6 +4,8 @@ import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import moe.caa.multilogin.ksin.internal.main.Ksin
 import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.SchemaUtils
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.migration.jdbc.MigrationUtils
 import java.io.FileReader
 import java.io.InputStream
@@ -25,7 +27,7 @@ object DatabaseHandler {
                     var input = String(it.readAllBytes(), StandardCharsets.UTF_8)
                     input = input.replace(
                         "{{data_directory}}",
-                        Ksin.INSTANCE.bootstrap.dataDirectory.toFile().absolutePath
+                        Ksin.INSTANCE.bootstrap.dataDirectory.toFile().absolutePath.replace("\\", "/")
                     )
                     Files.writeString(hikariConfigurationPath, input, StandardCharsets.UTF_8)
                 }
@@ -38,7 +40,10 @@ object DatabaseHandler {
         val config = HikariConfig(properties)
         dataSource = HikariDataSource(config)
         database = Database.connect(dataSource)
-        MigrationUtils.statementsRequiredForDatabaseMigration(PlayerCurrentUseTable, RepairedSkinTable)
+        transaction(database) {
+            SchemaUtils.create(PlayerCurrentUseTable, RepairedSkinTable)
+            MigrationUtils.statementsRequiredForDatabaseMigration(PlayerCurrentUseTable, RepairedSkinTable)
+        }
     }
 
     fun close() {
