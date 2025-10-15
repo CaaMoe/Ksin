@@ -57,7 +57,9 @@ public class Ksin {
     }
 
     public void disable() {
-        databaseHandler.close();
+        if(databaseHandler != null){
+            databaseHandler.close();
+        }
     }
 
     public @Nullable InputStream getResourceAsStream(String resourcePath) {

@@ -51,6 +51,9 @@ public class KsinBootstrap {
     @Subscribe
     public void onInitialize(@NotNull ProxyInitializeEvent event) {
         try {
+            if (!Files.exists(dataDirectory)) {
+                Files.createDirectories(dataDirectory);
+            }
             initialize();
         } catch (Throwable e) {
             logger.error("Failed to initialize Ksin", e);
