@@ -2,10 +2,11 @@
 
 # Ksin
 
-![GitHub commit activity](https://img.shields.io/github/commit-activity/t/CaaMoe/Ksin)
+![GitHub commit activity](https://img.shields.io/github/commit-activity/t/CaaMoe/Ksin?style=flat-square)
+[![GitHub release](https://img.shields.io/github/release/CaaMoe/Ksin.svg?style=flat-square)](https://github.com/CaaMoe/Ksin/releases/)
 [![GitHub license](https://img.shields.io/github/license/CaaMoe/Ksin?style=flat-square)](https://github.com/CaaMoe/Ksin/blob/master/LICENSE)
 [![QQ Group](https://img.shields.io/badge/QQ%20group-832210691-yellow?style=flat-square)](https://jq.qq.com/?_wv=1027&k=WrOTGIC7)
-[![Join our Discord](https://img.shields.io/discord/1225725211727499347.svg?logo=discord&label=)](https://discord.gg/9vh4kZRFCj)
+[![Join our Discord](https://img.shields.io/discord/1225725211727499347.svg?logo=discord&style=flat-square)](https://discord.gg/9vh4kZRFCj)
 [![bStats](https://img.shields.io/bstats/servers/26924?color=brightgreen&label=bStats&logo=bs&style=flat-square)](https://bstats.org/plugin/velocity/ksin/26924)
 
 </div>
@@ -22,7 +23,8 @@ Ksin 是一个专为 Minecraft Velocity 代理服务器设计的插件, 功能�
 
 1. 确保你的服务器是 Velocity 类型代理端
 2. 确保服务器运行 Java 21 或更高版本
-3. 从 [Actions](https://github.com/CaaMoe/Ksin/actions) 页面下载最新构建版本的 Ksin.jar(如果没有的话可以参考下方的构建步骤自己构建)
+3. 从 [Release](https://github.com/CaaMoe/Ksin/releases) 页面下载最新构建版本的 Ksin.jar(
+   如果没有的话可以参考下方的构建步骤自己构建)
 4. 将下载的 JAR 文件放入 Velocity 服务器的 `plugins` 文件夹中
 5. 重启 Velocity 服务器
 
