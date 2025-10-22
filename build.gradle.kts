@@ -57,16 +57,27 @@ tasks.build { finalizedBy(tasks.shadowJar) }
 tasks.shadowJar {
     configurations = emptyList()
 
+    val relocates = arrayListOf<Pair<String, String>>()
+    val excludes = arrayListOf<String>()
+
     file("config/relocations.txt").readLines()
         .map { it.trim() }
         .filter { it.isNotEmpty() }
         .forEach {
             val parts = it.split("\\s+".toRegex())
-            if (parts.size != 2) {
-                throw IllegalArgumentException("Invalid relocation entry: $it")
+            when (parts.size) {
+                2 -> relocates += parts[0] to parts[1]
+                1 -> excludes += parts[0]
+                else -> throw IllegalArgumentException("Invalid relocation entry: $it")
             }
-            relocate(parts[0], parts[1])
         }
+
+
+    for ((pattern, destination) in relocates) {
+        relocate(pattern, destination) {
+            excludes.forEach { exclude(it) }
+        }
+    }
 
     archiveFileName.set("Ksin.jar")
     manifest {

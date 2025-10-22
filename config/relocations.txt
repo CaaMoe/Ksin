@@ -1,6 +1,4 @@
-kotlin moe.caa.multilogin.ksin.libraries.kotlin
-kotlinx moe.caa.multilogin.ksin.libraries.kotlinx
-
 org.bstats moe.caa.multilogin.ksin.libraries.org.bstats
 
+com.zaxxer.hikari moe.caa.multilogin.ksin.libraries.com.zaxxer.hikari
 org.jetbrains.exposed moe.caa.multilogin.ksin.libraries.org.jetbrains.exposed

@@ -13,13 +13,16 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 class DependencyRelocator {
     private final @NotNull DependencyHandler dependencyHandler;
     @NotNull Map<@NotNull String, @NotNull String> relocations = new ConcurrentHashMap<>();
+    @NotNull List<@NotNull String> excludes = new CopyOnWriteArrayList<>();
     private volatile @Nullable RelocateTool relocateTool;
 
     DependencyRelocator(@NotNull DependencyHandler dependencyHandler) {
@@ -51,6 +54,8 @@ class DependencyRelocator {
         private final @NotNull MethodHandle jarRelocatorConstructor;
         private final @NotNull MethodHandle jarRelocatorRunMethod;
 
+        private final @NotNull MethodHandle relocationConstructor;
+
         private RelocateTool() throws IOException, NoSuchAlgorithmException, ClassNotFoundException, NoSuchMethodException, IllegalAccessException {
             long startTimeMills = System.currentTimeMillis();
             dependencyHandler.logger.debug("Initializing dependency relocator tool...");
@@ -71,6 +76,9 @@ class DependencyRelocator {
             jarRelocatorConstructor = lookup.unreflectConstructor(jarRelocatorClass.getConstructor(File.class, File.class, Map.class));
             jarRelocatorRunMethod = lookup.unreflect(jarRelocatorClass.getMethod("run"));
 
+            Class<?> relocationClass = urlClassLoader.loadClass("me.lucko.jarrelocator.Relocation");
+            relocationConstructor = lookup.unreflectConstructor(relocationClass.getConstructor(String.class, String.class, Collection.class, Collection.class));
+
             dependencyHandler.logger.debug("Initialized dependency relocator tool, took " +
                     (System.currentTimeMillis() - startTimeMills) + " ms");
         }
@@ -81,10 +89,20 @@ class DependencyRelocator {
             if (!Files.exists(relocatedDependencyJarPath.getParent())) {
                 Files.createDirectories(relocatedDependencyJarPath.getParent());
             }
+
+            List<Object> relocationRules = new ArrayList<>();
+            for (Map.Entry<String, String> entry : relocations.entrySet()) {
+                String pattern = entry.getKey();
+                String destination = entry.getValue();
+                Collection<String> excludes = DependencyRelocator.this.excludes;
+                Object relocationRule = relocationConstructor.invoke(pattern, destination, null, excludes);
+                relocationRules.add(relocationRule);
+            }
+
             Object jarRelocatorObject = jarRelocatorConstructor.invoke(
                     dependencyJarPath.toFile(),
                     relocatedDependencyJarPath.toFile(),
-                    relocations
+                    relocationRules
             );
 
             jarRelocatorRunMethod.invoke(jarRelocatorObject);

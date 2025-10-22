@@ -31,6 +31,10 @@ public class DependencyHandler {
         dependencyRelocator.relocations.put(original, relocated);
     }
 
+    public void addExclude(@NotNull String pattern) {
+        dependencyRelocator.excludes.add(pattern);
+    }
+
     public @NotNull Path handleDependency(@NotNull Dependency dependency) throws Throwable {
         Path dependencyPath = dependencyDownloader.fetchDependency(dependency);
         return dependencyRelocator.relocate(dependency, dependencyPath);

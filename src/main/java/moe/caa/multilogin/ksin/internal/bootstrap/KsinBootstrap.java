@@ -123,10 +123,17 @@ public class KsinBootstrap {
             throw new IOException("No relocations found in the relocations.txt(nest).");
         }
         for (String[] relocation : relocations) {
-            String original = relocation[0];
-            String relocated = relocation[1];
-            dependencyHandler.addRelocation(original, relocated);
-            logger.debug("Added dependency relocation: " + original + " -> " + relocated);
+            if (relocation.length == 1) {
+                dependencyHandler.addExclude(relocation[0]);
+                logger.debug("Added dependency relocate exclusion: " + relocation[0]);
+            } else if (relocation.length == 2) {
+                String original = relocation[0];
+                String relocated = relocation[1];
+                dependencyHandler.addRelocation(original, relocated);
+                logger.debug("Added dependency relocation: " + original + " -> " + relocated);
+            } else {
+                throw new IllegalArgumentException("Invalid relocation entry: " + Arrays.toString(relocation));
+            }
         }
         // outside repository
         Path outsideRelocations = dataDirectory.resolve("relocations.txt");
@@ -140,10 +147,17 @@ public class KsinBootstrap {
                 .map(s -> s.split("\\s+"))
                 .toList();
         for (String[] outsideRelocation : outsideRelocationsList) {
-            String original = outsideRelocation[0];
-            String relocated = outsideRelocation[1];
-            dependencyHandler.addRelocation(original, relocated);
-            logger.info("Added outside dependency relocation: " + original + " -> " + relocated);
+            if (outsideRelocation.length == 1) {
+                dependencyHandler.addExclude(outsideRelocation[0]);
+                logger.info("Added outside dependency relocate exclusion: " + outsideRelocation[0]);
+            } else if (outsideRelocation.length == 2) {
+                String original = outsideRelocation[0];
+                String relocated = outsideRelocation[1];
+                dependencyHandler.addRelocation(original, relocated);
+                logger.info("Added outside dependency relocation: " + original + " -> " + relocated);
+            } else {
+                throw new IllegalArgumentException("Invalid relocation entry: " + Arrays.toString(outsideRelocation));
+            }
         }
 
         // dependency
